@@ -133,13 +133,12 @@ public class Updater : IDisposable
                                 var titleTemplate = Template.Parse(activityConfig.TitleTemplate);
                                 var title = titleTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
 
-                                var data = new Dictionary<string, object>()
-                            {
-                                {"Title", title},
-                                {"IsPrefix", activityConfig.IsPrefix},
-                                {"Color", activityConfig.Color!},
-                                {"Glow", activityConfig.Glow!}
-                            };
+                                var data = new Dictionary<string, object>() {
+                                    {"Title", title},
+                                    {"IsPrefix", activityConfig.IsPrefix},
+                                    {"Color", activityConfig.Color!},
+                                    {"Glow", activityConfig.Glow!}
+                                };
 
                                 var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
                                 if (serializedData != UpdatedTitleJson)
@@ -174,9 +173,9 @@ public class Updater : IDisposable
 
     private void OnFrameworkUpdate(IFramework framework)
     {
-        if (Config.Enabled)
+        if (Config.Enabled && UpdateTitle != null)
         {
-            UpdateTitle?.Invoke();
+            UpdateTitle.Invoke();
             UpdaterContext.SecsElapsed += framework.UpdateDelta.TotalSeconds;
         }
     }
