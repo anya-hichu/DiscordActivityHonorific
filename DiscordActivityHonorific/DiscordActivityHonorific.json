@@ -1,0 +1,12 @@
+{
+  "Author": "Anya Hichu",
+  "Name": "DiscordActivityHonorific",
+  "Punchline": "Discord activity as honorific",
+  "Description": "Update honorific title based on discord activity informations",
+  "ApplicableVersion": "any",
+  "Tags": [
+    "discord",
+    "activity",
+    "honorific"
+  ]
+}
