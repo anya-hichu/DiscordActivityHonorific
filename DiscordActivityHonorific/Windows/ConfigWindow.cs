@@ -133,7 +133,7 @@ public class ConfigWindow : Window
                     }
 
                     var priority = activityConfig.Priority;
-                    if (ImGui.InputInt($"Priority###{activityConfigId}Priority", ref priority, ushort.MaxValue))
+                    if (ImGui.InputInt($"Priority###{activityConfigId}Priority", ref priority, 1))
                     {
                         activityConfig.Priority = priority;
                         Config.Save();
