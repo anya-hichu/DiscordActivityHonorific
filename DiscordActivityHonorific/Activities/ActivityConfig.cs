@@ -15,7 +15,7 @@ public class ActivityConfig
             Name = $"Game (V{DEFAULT_VERSION})",
             TypeName = typeof(Game).Name,
             FilterTemplate = """
-{{ Activity.Name != "FINAL FANTASY XIV" }}
+{{ Activity.Name != "FINAL FANTASY XIV Online" }}
 """,
             TitleTemplate = """
 {{- if (Context.SecsElapsed % 20) < 10 -}}
