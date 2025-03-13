@@ -19,3 +19,13 @@ Installable using my custom repository (instructions here: https://github.com/an
 - `/discordactivityhonorific config`
 - `/discordactivityhonorific enable`
 - `/discordactivityhonorific disable`
+
+# Setup
+## Bot configuration (https://discord.com/developers/applications):
+![spotify](images/image3.png)
+
+## Invite to server or personal server:
+![spotify](images/image4.png)
+
+## Enable public activities
+![spotify](images/image5.png)
