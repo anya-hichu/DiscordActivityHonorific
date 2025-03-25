@@ -7,10 +7,15 @@
     <PackageProjectUrl>https://github.com/anya-hichu/DiscordActivityHonorific</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
+    <TargetFramework>net9.0-windows7.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Discord.Net.WebSocket" Version="3.16.0" />
-    <PackageReference Include="Scriban" Version="5.12.0" />
+    <PackageReference Include="Discord.Net.WebSocket" Version="3.17.2" />
+    <PackageReference Include="Scriban" Version="6.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Update="DalamudPackager" Version="12.0.0" />
   </ItemGroup>
 </Project>
