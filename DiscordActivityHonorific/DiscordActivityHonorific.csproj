@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Microsoft.NET.Sdk">
-  <Import Project="Dalamud.Plugin.Bootstrap.targets" />
-
+<Project Sdk="Dalamud.NET.SDK/12.0.0">
   <PropertyGroup>
     <Description>Update honorific title based on discord activity informations</Description>
     <PackageProjectUrl>https://github.com/anya-hichu/DiscordActivityHonorific</PackageProjectUrl>
@@ -13,9 +11,5 @@
   <ItemGroup>
     <PackageReference Include="Discord.Net.WebSocket" Version="3.17.2" />
     <PackageReference Include="Scriban" Version="6.0.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Update="DalamudPackager" Version="12.0.0" />
   </ItemGroup>
 </Project>
