@@ -56,7 +56,10 @@ public class Updater : IDisposable
     public void Dispose()
     {
         Framework.Update -= OnFrameworkUpdate;
-        ClearCharacterTitleSubscriber.InvokeAction(0);
+        Framework.RunOnFrameworkThread(() =>
+        {
+            ClearCharacterTitleSubscriber.InvokeAction(0);
+        }); 
         DiscordSocketClient.Dispose();
     }
 
@@ -88,7 +91,10 @@ public class Updater : IDisposable
         return DiscordSocketClient.LogoutAsync().ContinueWith(t =>
         {
             DiscordSocketClient.StopAsync();
-            ClearCharacterTitleSubscriber.InvokeAction(0);
+            Framework.RunOnFrameworkThread(() =>
+            {
+                ClearCharacterTitleSubscriber.InvokeAction(0);
+            });
         });
     }
 
@@ -197,7 +203,10 @@ public class Updater : IDisposable
     private void ClearTitle()
     {
         PluginLog.Verbose("Call Honorific ClearCharacterTitle IPC");
-        ClearCharacterTitleSubscriber.InvokeAction(0);
+        Framework.RunOnFrameworkThread(() =>
+        {
+            ClearCharacterTitleSubscriber.InvokeAction(0);
+        });
         UpdaterContext.SecsElapsed = 0;
         UpdateTitle = null;
         UpdatedTitleJson = null;
