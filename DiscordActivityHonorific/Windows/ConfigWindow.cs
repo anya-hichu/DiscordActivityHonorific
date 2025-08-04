@@ -1,10 +1,12 @@
 using Dalamud.Interface.Colors;
+using Dalamud.Interface.Utility.Raii;
 using Dalamud.Interface.Windowing;
 using Dalamud.Utility;
 using DiscordActivityHonorific.Activities;
 using DiscordActivityHonorific.Updaters;
 using DiscordActivityHonorific.Utils;
 using ImGuiNET;
+using Scriban;
 using System.Linq;
 using System.Numerics;
 
@@ -193,7 +195,17 @@ public class ConfigWindow : Window
                     var filterTemplateInput = ImGui.InputTextMultiline($"Filter Template (scriban)###{activityConfigId}FilterTemplate", ref filterTemplate, ushort.MaxValue, new(ImGui.GetWindowWidth() - 170, 50));
                     if (ImGui.IsItemHovered())
                     {
-                        ImGui.SetTooltip("Expects parsable boolean as output if provided\nSyntax reference available on https://github.com/scriban/scriban");
+                        if (!TryParseTemplate(filterTemplate, out var errorMessages))
+                        {
+                            using (ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed))
+                            {
+                                ImGui.SetTooltip(string.Join("\n", errorMessages));
+                            }
+                        }
+                        else
+                        {
+                            ImGui.SetTooltip("Expects parsable boolean as output if provided\nSyntax reference available on https://github.com/scriban/scriban");
+                        }
                     }
                     if (filterTemplateInput)
                     {
@@ -203,9 +215,20 @@ public class ConfigWindow : Window
 
                     var titleTemplate = activityConfig.TitleTemplate;
                     var titleTemplateInput = ImGui.InputTextMultiline($"Title Template (scriban)###{activityConfigId}TitleTemplate", ref titleTemplate, ushort.MaxValue, new(ImGui.GetWindowWidth() - 170, ImGui.GetWindowHeight() - ImGui.GetCursorPosY() - 40));
+
                     if (ImGui.IsItemHovered())
                     {
-                        ImGui.SetTooltip("Expects single line as output\nSyntax reference available on https://github.com/scriban/scriban");
+                        if (!TryParseTemplate(titleTemplate, out var errorMessages))
+                        {
+                            using (ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed))
+                            {
+                                ImGui.SetTooltip(string.Join("\n", errorMessages));
+                            }
+                        }
+                        else
+                        {
+                            ImGui.SetTooltip("Expects single line as output\nSyntax reference available on https://github.com/scriban/scriban");
+                        }   
                     }
                     if (titleTemplateInput)
                     {
@@ -248,5 +271,12 @@ public class ConfigWindow : Window
             }
             ImGui.EndTabBar();
         } 
+    }
+
+    private static bool TryParseTemplate(string template, out LogMessageBag errorMessages)
+    {
+        var parsed = Template.Parse(template);
+        errorMessages = parsed.Messages;
+        return !parsed.HasErrors;
     }
 }

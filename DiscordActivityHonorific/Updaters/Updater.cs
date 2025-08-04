@@ -105,74 +105,81 @@ public class Updater : IDisposable
 
     private Task PresenceUpdated(SocketUser socketUser, SocketPresence oldPresence, SocketPresence newPresence)
     {
-        if (Config.Username.IsNullOrWhitespace() || Config.Username == socketUser.Username)
+        try
         {
             PluginLog.Verbose($"PresenceUpdated for user '{socketUser.Username}':\n{JsonConvert.SerializeObject(newPresence, Formatting.Indented)}");
-            foreach (var activityConfig in Config.ActivityConfigs.Where(c => c.Enabled).OrderByDescending(c => c.Priority))
+            if (Config.Username.IsNullOrWhitespace() || Config.Username == socketUser.Username)
             {
-                var activity = newPresence.Activities.FirstOrDefault(activity => activity.GetType().IsAssignableTo(activityConfig.ResolveType()));
-                if (activity != null)
+                foreach (var activityConfig in Config.ActivityConfigs.Where(c => c.Enabled).OrderByDescending(c => c.Priority))
                 {
-                    var matchFilter = true;
-                    if (!activityConfig.FilterTemplate.IsNullOrWhitespace())
+                    var activity = newPresence.Activities.FirstOrDefault(activity => activity.GetType().IsAssignableTo(activityConfig.ResolveType()));
+                    if (activity != null)
                     {
-                        var filterTemplate = Template.Parse(activityConfig.FilterTemplate);
-                        var filter = filterTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
+                        var matchFilter = true;
+                        if (!activityConfig.FilterTemplate.IsNullOrWhitespace())
+                        {
+                            var filterTemplate = Template.Parse(activityConfig.FilterTemplate);
+                            var filter = filterTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
 
-                        if (bool.TryParse(filter, out var parsedFilter))
-                        {
-                            matchFilter = parsedFilter;
-                        }
-                        else
-                        {
-                            PluginLog.Error($"Unable to parse filter '{filter}' as boolean, skipping result");
-                        }
-                    }
-
-                    if (matchFilter)
-                    {
-                        UpdaterContext.SecsElapsed = 0;
-                        UpdateTitle = () =>
-                        {
-                            if (Config.Enabled && activityConfig.Enabled)
+                            if (bool.TryParse(filter, out var parsedFilter))
                             {
-                                var titleTemplate = Template.Parse(activityConfig.TitleTemplate);
-                                var title = titleTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
-
-                                var data = new Dictionary<string, object>() {
-                                    {"Title", title},
-                                    {"IsPrefix", activityConfig.IsPrefix},
-                                    {"Color", activityConfig.Color!},
-                                    {"Glow", activityConfig.Glow!}
-                                };
-
-                                var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
-                                if (serializedData != UpdatedTitleJson)
-                                {
-                                    PluginLog.Verbose($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
-                                    SetCharacterTitleSubscriber.InvokeAction(0, serializedData);
-                                    UpdatedTitleJson = serializedData;
-                                }
+                                matchFilter = parsedFilter;
                             }
                             else
                             {
-                                ClearTitle();
+                                PluginLog.Error($"Unable to parse filter '{filter}' as boolean, skipping result");
                             }
-                        };
-                        return Task.CompletedTask;
+                        }
+
+                        if (matchFilter)
+                        {
+                            UpdaterContext.SecsElapsed = 0;
+                            UpdateTitle = () =>
+                            {
+                                if (Config.Enabled && activityConfig.Enabled)
+                                {
+                                    var titleTemplate = Template.Parse(activityConfig.TitleTemplate);
+                                    var title = titleTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
+
+                                    var data = new Dictionary<string, object>() {
+                                        {"Title", title},
+                                        {"IsPrefix", activityConfig.IsPrefix},
+                                        {"Color", activityConfig.Color!},
+                                        {"Glow", activityConfig.Glow!}
+                                    };
+
+                                    var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
+                                    if (serializedData != UpdatedTitleJson)
+                                    {
+                                        PluginLog.Verbose($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
+                                        SetCharacterTitleSubscriber.InvokeAction(0, serializedData);
+                                        UpdatedTitleJson = serializedData;
+                                    }
+                                }
+                                else
+                                {
+                                    ClearTitle();
+                                }
+                            };
+                            return Task.CompletedTask;
+                        }
                     }
+
                 }
 
+                if (UpdateTitle != null || UpdatedTitleJson != null)
+                {
+                    ClearTitle();
+                }
             }
-
-            if (UpdateTitle != null || UpdatedTitleJson != null)
+            else
             {
-                ClearTitle();
+                PluginLog.Verbose($"Ignored PresenceUpdated for '{socketUser.Username}' since it doesn't match explictely configured username: '{Config.Username}'");
             }
         } 
-        else
+        catch (Exception e)
         {
-            PluginLog.Verbose($"Ignored PresenceUpdated for '{socketUser.Username}' (configured username: '{Config.Username}')"); 
+            PluginLog.Error(e.ToString());
         }
         return Task.CompletedTask;
     }
@@ -181,7 +188,14 @@ public class Updater : IDisposable
     {
         if (Config.Enabled && UpdateTitle != null)
         {
-            UpdateTitle.Invoke();
+            try
+            {
+                UpdateTitle();
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error(e.ToString());
+            }
             UpdaterContext.SecsElapsed += framework.UpdateDelta.TotalSeconds;
         }
     }
@@ -190,7 +204,7 @@ public class Updater : IDisposable
     {
         if (logMessage.Exception != null)
         {
-            PluginLog.Error(logMessage.Exception.Message);
+            PluginLog.Error(logMessage.Exception.ToString());
         }
         else
         {
