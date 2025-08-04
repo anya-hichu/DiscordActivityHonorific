@@ -107,7 +107,7 @@ public class Updater : IDisposable
     {
         try
         {
-            PluginLog.Verbose($"PresenceUpdated for user '{socketUser.Username}':\n{JsonConvert.SerializeObject(newPresence, Formatting.Indented)}");
+            PluginLog.Debug($"PresenceUpdated for user '{socketUser.Username}':\n{JsonConvert.SerializeObject(newPresence, Formatting.Indented)}");
             if (Config.Username.IsNullOrWhitespace() || Config.Username == socketUser.Username)
             {
                 foreach (var activityConfig in Config.ActivityConfigs.Where(c => c.Enabled).OrderByDescending(c => c.Priority))
@@ -151,7 +151,7 @@ public class Updater : IDisposable
                                     var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
                                     if (serializedData != UpdatedTitleJson)
                                     {
-                                        PluginLog.Verbose($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
+                                        PluginLog.Debug($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
                                         SetCharacterTitleSubscriber.InvokeAction(0, serializedData);
                                         UpdatedTitleJson = serializedData;
                                     }
@@ -174,7 +174,7 @@ public class Updater : IDisposable
             }
             else
             {
-                PluginLog.Verbose($"Ignored PresenceUpdated for '{socketUser.Username}' since it doesn't match explictely configured username: '{Config.Username}'");
+                PluginLog.Debug($"Ignored PresenceUpdated for '{socketUser.Username}' since it doesn't match explictely configured username: '{Config.Username}'");
             }
         } 
         catch (Exception e)
@@ -216,7 +216,7 @@ public class Updater : IDisposable
 
     private void ClearTitle()
     {
-        PluginLog.Verbose("Call Honorific ClearCharacterTitle IPC");
+        PluginLog.Debug("Call Honorific ClearCharacterTitle IPC");
         Framework.RunOnFrameworkThread(() =>
         {
             ClearCharacterTitleSubscriber.InvokeAction(0);
