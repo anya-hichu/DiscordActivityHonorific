@@ -1,7 +1,7 @@
 
 
 using Dalamud.Interface.Utility;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using System.Numerics;
 
 namespace DiscordActivityHonorific.Utils;

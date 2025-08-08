@@ -5,7 +5,7 @@ using Dalamud.Utility;
 using DiscordActivityHonorific.Activities;
 using DiscordActivityHonorific.Updaters;
 using DiscordActivityHonorific.Utils;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using Scriban;
 using System.Linq;
 using System.Numerics;
