@@ -27,5 +27,5 @@ Installable using my custom repository (instructions here: https://github.com/an
 ## Invite to server or personal server
 ![spotify](images/image4.png)
 
-## Enable public activities
+## Enable activities on server
 ![spotify](images/image5.png)
