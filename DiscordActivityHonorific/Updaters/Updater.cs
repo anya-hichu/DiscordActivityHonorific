@@ -15,16 +15,21 @@ namespace DiscordActivityHonorific.Updaters;
 
 public class Updater : IDisposable
 {
+    private static readonly ushort MAX_TITLE_LENGTH = 32;
+
+    private IChatGui ChatGui { get; init; }
     private Config Config { get; init; }
     private IFramework Framework { get; init; }
     private IDalamudPluginInterface PluginInterface { get; init; }
     private IPluginLog PluginLog { get; init; }
+
     private ICallGateSubscriber<int, string, object> SetCharacterTitleSubscriber { get; init; }
     private ICallGateSubscriber<int, object> ClearCharacterTitleSubscriber { get; init; }
 
     private Action? UpdateTitle { get; set; }
     private string? UpdatedTitleJson { get; set; }
     private UpdaterContext UpdaterContext { get; init; } = new();
+    private bool DisplayedMaxLengthError { get; set; } = false;
 
     private DiscordSocketClient DiscordSocketClient { get; init; } = new(new()
     {
@@ -32,8 +37,9 @@ public class Updater : IDisposable
         LogLevel = LogSeverity.Verbose
     });
 
-    public Updater(Config config, IFramework framwork, IDalamudPluginInterface pluginInterface, IPluginLog pluginLog)
+    public Updater(IChatGui chatGui, Config config, IFramework framwork, IDalamudPluginInterface pluginInterface, IPluginLog pluginLog)
     {
+        ChatGui = chatGui;
         Config = config;
         Framework = framwork;
         PluginInterface = pluginInterface;
@@ -63,7 +69,7 @@ public class Updater : IDisposable
         DiscordSocketClient.Dispose();
     }
 
-    public Task Enable(bool value)
+    public Task Toggle(bool value)
     {
         return value ? Start() : Stop();
     }
@@ -136,30 +142,41 @@ public class Updater : IDisposable
                             UpdaterContext.SecsElapsed = 0;
                             UpdateTitle = () =>
                             {
-                                if (Config.Enabled && activityConfig.Enabled)
-                                {
-                                    var titleTemplate = Template.Parse(activityConfig.TitleTemplate);
-                                    var title = titleTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
-
-                                    var data = new Dictionary<string, object>() {
-                                        {"Title", title},
-                                        {"IsPrefix", activityConfig.IsPrefix},
-                                        {"Color", activityConfig.Color!},
-                                        {"Glow", activityConfig.Glow!}
-                                    };
-
-                                    var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
-                                    if (serializedData != UpdatedTitleJson)
-                                    {
-                                        PluginLog.Debug($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
-                                        SetCharacterTitleSubscriber.InvokeAction(0, serializedData);
-                                        UpdatedTitleJson = serializedData;
-                                    }
-                                }
-                                else
+                                if (!Config.Enabled || !activityConfig.Enabled)
                                 {
                                     ClearTitle();
+                                    return;
                                 }
+
+                                var titleTemplate = Template.Parse(activityConfig.TitleTemplate);
+                                var title = titleTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
+
+                                if (title.Length > MAX_TITLE_LENGTH)
+                                {
+                                    if (!DisplayedMaxLengthError)
+                                    {
+                                        var message = $"Title '{title}' is longer than {MAX_TITLE_LENGTH} characters, it won't be applied by honorific. Trim whitespaces or truncate variables to reduce the length.";
+                                        PluginLog.Error(message);
+                                        ChatGui.PrintError(message, "DiscordActivityHonorific");
+                                        DisplayedMaxLengthError = true;
+                                    }
+                                    return;
+                                }
+                                DisplayedMaxLengthError = false;
+
+                                var data = new Dictionary<string, object>() {
+                                    {"Title", title},
+                                    {"IsPrefix", activityConfig.IsPrefix},
+                                    {"Color", activityConfig.Color!},
+                                    {"Glow", activityConfig.Glow!}
+                                };
+
+                                var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
+                                if (serializedData == UpdatedTitleJson) return;
+
+                                PluginLog.Debug($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
+                                SetCharacterTitleSubscriber.InvokeAction(0, serializedData);
+                                UpdatedTitleJson = serializedData;
                             };
                             return Task.CompletedTask;
                         }
@@ -186,18 +203,17 @@ public class Updater : IDisposable
 
     private void OnFrameworkUpdate(IFramework framework)
     {
-        if (Config.Enabled && UpdateTitle != null)
+        if (!Config.Enabled || UpdateTitle == null) return;
+
+        try
         {
-            try
-            {
-                UpdateTitle();
-            }
-            catch (Exception e)
-            {
-                PluginLog.Error(e.ToString());
-            }
-            UpdaterContext.SecsElapsed += framework.UpdateDelta.TotalSeconds;
+            UpdateTitle();
         }
+        catch (Exception e)
+        {
+            PluginLog.Error(e.ToString());
+        }
+        UpdaterContext.SecsElapsed += framework.UpdateDelta.TotalSeconds;
     }
 
     private Task Log(LogMessage logMessage)

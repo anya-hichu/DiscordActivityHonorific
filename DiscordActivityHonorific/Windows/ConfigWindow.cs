@@ -9,6 +9,7 @@ using Dalamud.Bindings.ImGui;
 using Scriban;
 using System.Linq;
 using System.Numerics;
+using Scriban.Helpers;
 
 namespace DiscordActivityHonorific.Windows;
 
@@ -22,8 +23,8 @@ public class ConfigWindow : Window
     {
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(760, 420),
-            MaximumSize = new Vector2(float.MaxValue, float.MaxValue)
+            MinimumSize = new(760, 420),
+            MaximumSize = new(float.MaxValue, float.MaxValue)
         };
 
         Config = config;
@@ -38,7 +39,7 @@ public class ConfigWindow : Window
         {
             Config.Enabled = enabled;
             Config.Save();
-            Updater.Enable(enabled);
+            Updater.Toggle(enabled);
         }
 
         var token = Config.Token;
@@ -170,7 +171,7 @@ public class ConfigWindow : Window
                                     }
                                     if (ImGui.TableNextColumn())
                                     {
-                                        ImGui.Text(property.PropertyType.ToString());
+                                        ImGui.Text(property.PropertyType.ScriptPrettyName());
                                     }
                                 }
 
@@ -182,7 +183,7 @@ public class ConfigWindow : Window
                                     }
                                     if (ImGui.TableNextColumn())
                                     {
-                                        ImGui.Text(property.PropertyType.ToString());
+                                        ImGui.Text(property.PropertyType.ScriptPrettyName());
                                     }
                                 }
 
@@ -227,7 +228,7 @@ public class ConfigWindow : Window
                         }
                         else
                         {
-                            ImGui.SetTooltip("Expects single line as output\nSyntax reference available on https://github.com/scriban/scriban");
+                            ImGui.SetTooltip("Expects single line as output (max: 32 characters)\nSyntax reference available on https://github.com/scriban/scriban");
                         }   
                     }
                     if (titleTemplateInput)

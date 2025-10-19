@@ -9,13 +9,13 @@ namespace DiscordActivityHonorific.Activities;
 [Serializable]
 public class ActivityConfig
 {
-    public static readonly int DEFAULT_VERSION = 1;
+    public static readonly int DEFAULT_VERSION = 2;
     private static readonly List<ActivityConfig> DEFAULTS = [
         new() {
             Name = $"Game (V{DEFAULT_VERSION})",
             TypeName = typeof(Game).Name,
             FilterTemplate = """
-{{ Activity.Name != "FINAL FANTASY XIV Online" }}
+{{ Activity.Name != "FINAL FANTASY XIV Online" && Activity.Name != "FINAL FANTASY XIV" && Activity.Name != "Custom Status" }}
 """,
             TitleTemplate = """
 {{- if (Context.SecsElapsed % 20) < 10 -}}
