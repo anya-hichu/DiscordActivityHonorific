@@ -1,11 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project Sdk="Dalamud.NET.Sdk/13.0.0">
+<Project Sdk="Dalamud.NET.Sdk/14.0.1">
   <PropertyGroup>
     <Description>Update honorific title based on discord activity informations</Description>
     <PackageProjectUrl>https://github.com/anya-hichu/DiscordActivityHonorific</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
-    <TargetFramework>net9.0-windows7.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>

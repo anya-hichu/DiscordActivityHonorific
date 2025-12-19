@@ -15,8 +15,6 @@ namespace DiscordActivityHonorific.Updaters;
 
 public class Updater : IDisposable
 {
-    private static readonly ushort MAX_TITLE_LENGTH = 32;
-
     private IChatGui ChatGui { get; init; }
     private Config Config { get; init; }
     private IFramework Framework { get; init; }
@@ -51,11 +49,7 @@ public class Updater : IDisposable
         DiscordSocketClient.Log += Log;
         DiscordSocketClient.PresenceUpdated += PresenceUpdated;
 
-        if (Config.Enabled)
-        {
-            Start();
-        }
-
+        if (Config.Enabled) Start();
         Framework.Update += OnFrameworkUpdate;
     }
 
@@ -92,6 +86,7 @@ public class Updater : IDisposable
             return Task.CompletedTask;
         }
     }
+
     public Task Stop()
     {
         return DiscordSocketClient.LogoutAsync().ContinueWith(t =>
@@ -104,10 +99,7 @@ public class Updater : IDisposable
         });
     }
 
-    public ConnectionState State()
-    {
-        return DiscordSocketClient.ConnectionState;
-    }
+    public ConnectionState State() => DiscordSocketClient.ConnectionState;
 
     private Task PresenceUpdated(SocketUser socketUser, SocketPresence oldPresence, SocketPresence newPresence)
     {
@@ -151,18 +143,17 @@ public class Updater : IDisposable
                                 var titleTemplate = Template.Parse(activityConfig.TitleTemplate);
                                 var title = titleTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
 
-                                if (title.Length > MAX_TITLE_LENGTH)
+                                if (title.Length > Constants.MAX_TITLE_LENGTH)
                                 {
                                     if (!DisplayedMaxLengthError)
                                     {
-                                        var message = $"Title '{title}' is longer than {MAX_TITLE_LENGTH} characters, it won't be applied by honorific. Trim whitespaces or truncate variables to reduce the length.";
+                                        var message = $"Title '{title}' is longer than {Constants.MAX_TITLE_LENGTH} characters, it won't be applied by honorific. Trim whitespaces or truncate variables to reduce the length.";
                                         PluginLog.Error(message);
                                         ChatGui.PrintError(message, "DiscordActivityHonorific");
                                         DisplayedMaxLengthError = true;
                                     }
                                     return;
                                 }
-                                DisplayedMaxLengthError = false;
 
                                 var data = new Dictionary<string, object>() {
                                     {"Title", title},
@@ -184,10 +175,7 @@ public class Updater : IDisposable
 
                 }
 
-                if (UpdateTitle != null || UpdatedTitleJson != null)
-                {
-                    ClearTitle();
-                }
+                if (UpdateTitle != null || UpdatedTitleJson != null) ClearTitle();
             }
             else
             {
@@ -240,5 +228,6 @@ public class Updater : IDisposable
         UpdaterContext.SecsElapsed = 0;
         UpdateTitle = null;
         UpdatedTitleJson = null;
+        DisplayedMaxLengthError = false;
     }
 }

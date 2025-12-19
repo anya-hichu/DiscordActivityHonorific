@@ -15,29 +15,29 @@ public class ActivityConfig
             Name = $"Game (V{DEFAULT_VERSION})",
             TypeName = typeof(Game).Name,
             FilterTemplate = """
-{{ Activity.Name != "FINAL FANTASY XIV Online" && Activity.Name != "FINAL FANTASY XIV" && Activity.Name != "Custom Status" }}
-""",
+            {{ Activity.Name != "FINAL FANTASY XIV Online" && Activity.Name != "FINAL FANTASY XIV" && Activity.Name != "Custom Status" }}
+            """,
             TitleTemplate = """
-{{- if (Context.SecsElapsed % 20) < 10 -}}
-     Playing Game 
-{{- else -}}
-    {{ Activity.Name |  string.truncate 32 }}
-{{- end -}}
-"""
+            {{- if (Context.SecsElapsed % 20) < 10 -}}
+                 Playing Game 
+            {{- else -}}
+                {{ Activity.Name |  string.truncate 32 }}
+            {{- end -}}
+            """
         },
         new() {
             Name = $"Spotify (V{DEFAULT_VERSION})",
             Priority = 1,
             TypeName = typeof(SpotifyGame).Name,
             TitleTemplate = """
-♪{{- if (Context.SecsElapsed % 30) < 10 -}}
-    Listening to Spotify
-{{- else if (Context.SecsElapsed % 30) < 20 -}}
-    {{ Activity.TrackTitle | string.truncate 30 }}
-{{- else -}}
-    {{ Activity.Artists[0] | string.truncate 30 }}
-{{- end -}}♪
-"""
+            ♪{{- if (Context.SecsElapsed % 30) < 10 -}}
+                Listening to Spotify
+            {{- else if (Context.SecsElapsed % 30) < 20 -}}
+                {{ Activity.TrackTitle | string.truncate 30 }}
+            {{- else -}}
+                {{ Activity.Artists[0] | string.truncate 30 }}
+            {{- end -}}♪ 
+            """
         }
     ];
 
@@ -72,6 +72,6 @@ public class ActivityConfig
 
     public static List<ActivityConfig> GetDefaults()
     {
-        return DEFAULTS.Select(c => c.Clone()).ToList();
+        return [.. DEFAULTS.Select(c => c.Clone())];
     }
 }
