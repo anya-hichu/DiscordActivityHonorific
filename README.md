@@ -20,9 +20,13 @@ Installable using my custom repository (instructions here: https://github.com/an
 - `/discordactivityhonorific enable`
 - `/discordactivityhonorific disable`
 
+
 # Setup
 ## Bot configuration (https://discord.com/developers/applications)
 ![spotify](images/image3.png)
+
+### Check "Presence Intent"
+![spotify](images/image6.png)
 
 ## Invite to server or personal server
 ![spotify](images/image4.png)
