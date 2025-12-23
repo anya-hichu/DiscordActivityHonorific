@@ -15,6 +15,8 @@ namespace DiscordActivityHonorific.Updaters;
 
 public class Updater : IDisposable
 {
+    private static readonly int UPDATE_THROTTLE_MS = 100;
+
     private IChatGui ChatGui { get; init; }
     private Config Config { get; init; }
     private IFramework Framework { get; init; }
@@ -29,10 +31,12 @@ public class Updater : IDisposable
     private UpdaterContext UpdaterContext { get; init; } = new();
     private bool DisplayedMaxLengthError { get; set; } = false;
 
+    private double DeltaSinceLastUpdateMs { get; set; } = 0;
+
     private DiscordSocketClient DiscordSocketClient { get; init; } = new(new()
     {
         GatewayIntents = GatewayIntents.Guilds | GatewayIntents.GuildPresences,
-        LogLevel = LogSeverity.Verbose
+        LogLevel = LogSeverity.Verbose,
     });
 
     public Updater(IChatGui chatGui, Config config, IFramework framwork, IDalamudPluginInterface pluginInterface, IPluginLog pluginLog)
@@ -165,8 +169,11 @@ public class Updater : IDisposable
                                 var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
                                 if (serializedData == UpdatedTitleJson) return;
 
-                                PluginLog.Debug($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
-                                SetCharacterTitleSubscriber.InvokeAction(0, serializedData);
+                                Framework.RunOnFrameworkThread(() =>
+                                {
+                                    PluginLog.Debug($"Call Honorific SetCharacterTitle IPC with:\n{serializedData}");
+                                    SetCharacterTitleSubscriber.InvokeAction(0, serializedData);
+                                });
                                 UpdatedTitleJson = serializedData;
                             };
                             return Task.CompletedTask;
@@ -193,14 +200,19 @@ public class Updater : IDisposable
     {
         if (!Config.Enabled || UpdateTitle == null) return;
 
-        try
+        if (DeltaSinceLastUpdateMs > UPDATE_THROTTLE_MS)
         {
-            UpdateTitle();
+            DeltaSinceLastUpdateMs = 0;
+            try
+            {
+                Task.Run(UpdateTitle);
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error(e.ToString());
+            }
         }
-        catch (Exception e)
-        {
-            PluginLog.Error(e.ToString());
-        }
+        DeltaSinceLastUpdateMs += framework.UpdateDelta.TotalMilliseconds;
         UpdaterContext.SecsElapsed += framework.UpdateDelta.TotalSeconds;
     }
 
