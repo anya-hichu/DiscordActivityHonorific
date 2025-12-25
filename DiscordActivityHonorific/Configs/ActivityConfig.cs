@@ -1,16 +1,17 @@
 using Discord;
+using DiscordActivityHonorific.Configs;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 
-namespace DiscordActivityHonorific.Activities;
+namespace DiscordActivityHonorific.Configs;
 
 [Serializable]
 public class ActivityConfig
 {
     public static readonly int DEFAULT_VERSION = 2;
-    private static readonly List<ActivityConfig> DEFAULTS = [
+
+    public static List<ActivityConfig> GetDefaults() => [
         new() {
             Name = $"Game (V{DEFAULT_VERSION})",
             TypeName = typeof(Game).Name,
@@ -53,25 +54,22 @@ public class ActivityConfig
     public string Name { get; set; } = string.Empty;
     public bool Enabled { get; set; } = true; 
     public int Priority { get; set; } = 0;
+
     public string TypeName { get; set; } = string.Empty;
+
     public string FilterTemplate { get; set; } = string.Empty;
     public string TitleTemplate { get; set; } = string.Empty;
+
+    #region Deprecated
+    [Obsolete("Moved to TitleDataConfig in version 1")]
     public bool IsPrefix { get; set; } = false;
+    [Obsolete("Moved to TitleDataConfig in version 1")]
     public Vector3? Color { get; set; }
+    [Obsolete("Moved to TitleDataConfig in version 1")]
     public Vector3? Glow { get; set; }
+    #endregion
 
-    public ActivityConfig Clone()
-    {
-        return (ActivityConfig)MemberwiseClone();
-    }
+    public TitleDataConfig? TitleDataConfig { get; set; }
 
-    public Type? ResolveType()
-    {
-        return AVAILABLE_TYPES.Find(x => x.Name == TypeName);
-    }
-
-    public static List<ActivityConfig> GetDefaults()
-    {
-        return [.. DEFAULTS.Select(c => c.Clone())];
-    }
+    public Type? ResolveType() => AVAILABLE_TYPES.Find(x => x.Name == TypeName);
 }

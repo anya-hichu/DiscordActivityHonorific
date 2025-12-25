@@ -4,6 +4,8 @@ using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using Discord;
 using Discord.WebSocket;
+using DiscordActivityHonorific.Configs;
+using DiscordActivityHonorific.Interop;
 using Newtonsoft.Json;
 using Scriban;
 using System;
@@ -129,7 +131,7 @@ public class Updater : IDisposable
                             }
                             else
                             {
-                                PluginLog.Error($"Unable to parse filter '{filter}' as boolean, skipping result");
+                                PluginLog.Warning($"Unable to parse filter '{filter}' as boolean, skipping result");
                             }
                         }
 
@@ -138,7 +140,7 @@ public class Updater : IDisposable
                             UpdaterContext.SecsElapsed = 0;
                             UpdateTitle = () =>
                             {
-                                if (!Config.Enabled || !activityConfig.Enabled)
+                                if (!Config.Enabled || !activityConfig.Enabled || activityConfig.TitleDataConfig == null)
                                 {
                                     ClearTitle();
                                     return;
@@ -147,26 +149,21 @@ public class Updater : IDisposable
                                 var titleTemplate = Template.Parse(activityConfig.TitleTemplate);
                                 var title = titleTemplate.Render(new { Activity = activity, Context = UpdaterContext }, member => member.Name);
 
-                                if (title.Length > Constants.MAX_TITLE_LENGTH)
+                                if (title.Length > Constraint.MaxTitleLength)
                                 {
                                     if (!DisplayedMaxLengthError)
                                     {
-                                        var message = $"Title '{title}' is longer than {Constants.MAX_TITLE_LENGTH} characters, it won't be applied by honorific. Trim whitespaces or truncate variables to reduce the length.";
-                                        PluginLog.Error(message);
+                                        var message = $"Title '{title}' is longer than {Constraint.MaxTitleLength} characters, it won't be applied by honorific. Trim whitespaces or truncate variables to reduce the length.";
+                                        PluginLog.Warning(message);
                                         ChatGui.PrintError(message, "DiscordActivityHonorific");
                                         DisplayedMaxLengthError = true;
                                     }
                                     return;
                                 }
 
-                                var data = new Dictionary<string, object>() {
-                                    {"Title", title},
-                                    {"IsPrefix", activityConfig.IsPrefix},
-                                    {"Color", activityConfig.Color!},
-                                    {"Glow", activityConfig.Glow!}
-                                };
+                                var titleData = activityConfig.TitleDataConfig.ToTitleData(title, Config.IsHonorificSupporter);
 
-                                var serializedData = JsonConvert.SerializeObject(data, Formatting.Indented);
+                                var serializedData = JsonConvert.SerializeObject(titleData, Formatting.Indented);
                                 if (serializedData == UpdatedTitleJson) return;
 
                                 Framework.RunOnFrameworkThread(() =>
@@ -191,7 +188,7 @@ public class Updater : IDisposable
         } 
         catch (Exception e)
         {
-            PluginLog.Error(e.ToString());
+            PluginLog.Warning(e.ToString());
         }
         return Task.CompletedTask;
     }
@@ -209,7 +206,7 @@ public class Updater : IDisposable
             }
             catch (Exception e)
             {
-                PluginLog.Error(e.ToString());
+                PluginLog.Warning(e.ToString());
             }
         }
         DeltaSinceLastUpdateMs += framework.UpdateDelta.TotalMilliseconds;
@@ -220,7 +217,7 @@ public class Updater : IDisposable
     {
         if (logMessage.Exception != null)
         {
-            PluginLog.Error(logMessage.Exception.ToString());
+            PluginLog.Warning(logMessage.Exception.ToString());
         }
         else
         {
