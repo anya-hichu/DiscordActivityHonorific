@@ -1,5 +1,4 @@
 using Discord;
-using DiscordActivityHonorific.Configs;
 using System;
 using System.Collections.Generic;
 using System.Numerics;
