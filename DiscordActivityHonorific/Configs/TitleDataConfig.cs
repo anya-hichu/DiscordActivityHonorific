@@ -11,7 +11,7 @@ public class TitleDataConfig : PartialTitleData
         Title = title,
         IsPrefix = IsPrefix,
         Color = Color,
-        Glow = Glow,
+        Glow = isHonorificSupporter && !GradientColourSet.HasValue ? Glow : null,
         GradientColourSet = isHonorificSupporter ? GradientColourSet : null,
         GradientAnimationStyle = isHonorificSupporter && GradientColourSet != null ? GradientAnimationStyle : null
     };

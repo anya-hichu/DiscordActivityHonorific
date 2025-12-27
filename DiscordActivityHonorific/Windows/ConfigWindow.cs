@@ -265,14 +265,19 @@ public class ConfigWindow : Window
             SaveConfig();
         }
 
-        ImGui.SameLine();
-        ImGui.Spacing();
-        ImGui.SameLine();
-        var glow = titleDataConfig.Glow;
-        if (CustomImGui.ColorPicker($"Glow###{nestedId}Glow", ref glow, checkboxSize))
+        var maybeGradientColourSet = titleDataConfig.GradientColourSet;
+        if (!Config.IsHonorificSupporter || !maybeGradientColourSet.HasValue)
         {
-            titleDataConfig.Glow = glow;
-            SaveConfig();
+            ImGui.SameLine();
+            ImGui.Spacing();
+            ImGui.SameLine();
+
+            var glow = titleDataConfig.Glow;
+            if (CustomImGui.ColorPicker($"Glow###{nestedId}Glow", ref glow, checkboxSize))
+            {
+                titleDataConfig.Glow = glow;
+                SaveConfig();
+            }
         }
 
         if (!Config.IsHonorificSupporter) return;
@@ -280,8 +285,6 @@ public class ConfigWindow : Window
         ImGui.SameLine();
         ImGui.Spacing();
         ImGui.SameLine();
-
-        var maybeGradientColourSet = titleDataConfig.GradientColourSet;
 
         var gradientColourSets = Enum.GetValues<GradientColourSet>();
         var selectedGradientColourSetIndex = maybeGradientColourSet.HasValue ? gradientColourSets.IndexOf(maybeGradientColourSet.Value) + 1 : 0;
