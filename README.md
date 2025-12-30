@@ -23,6 +23,8 @@ Installable using my custom repository (instructions here: https://github.com/an
 
 # Setup
 ## Bot configuration (https://discord.com/developers/applications)
+
+### Select "Connect" permission
 ![spotify](images/image3.png)
 
 ### Check "Presence Intent"
