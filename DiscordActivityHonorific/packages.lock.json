@@ -27,9 +27,9 @@
       },
       "Scriban": {
         "type": "Direct",
-        "requested": "[6.5.5, )",
-        "resolved": "6.5.5",
-        "contentHash": "TxsmDVQ9agPQaY+SvdTO+zntGpJOnL1QaO4dzACfc6gEKRYhoMpzCCFuVixEZXet291sRnjyym6lB69Cr/EXPQ=="
+        "requested": "[6.5.7, )",
+        "resolved": "6.5.7",
+        "contentHash": "jrFpfBrlynBbfJkdWKNfFNS/etNQJ0iuRE47e7FtyCgJuYBL5J42U01tBXsxmqJtW0uRzhzZ1RolZC8RsNxzwQ=="
       },
       "Discord.Net.Core": {
         "type": "Transitive",
