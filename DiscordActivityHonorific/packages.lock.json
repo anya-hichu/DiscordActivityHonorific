@@ -10,13 +10,13 @@
       },
       "Discord.Net.WebSocket": {
         "type": "Direct",
-        "requested": "[3.19.0, )",
-        "resolved": "3.19.0",
-        "contentHash": "rQj4PI29hJnyXQnWl0K49APVK4RJVJfVJMREMF7eyzfxl11ORfBqZSxb1jNLVH0CV5oPoocmIOFxgTEfbN4KHw==",
+        "requested": "[3.19.1, )",
+        "resolved": "3.19.1",
+        "contentHash": "T/Rkwb2rUShcppKVV9E02WM2CcZ6fS8+hsGUcJaQOzxuyXvOROl/QoMYER6HwvtkOZtkmpKagtgp+BdB/FJsDQ==",
         "dependencies": {
-          "Discord.Net.Core": "3.19.0",
-          "Discord.Net.Dave": "3.19.0",
-          "Discord.Net.Rest": "3.19.0"
+          "Discord.Net.Core": "3.19.1",
+          "Discord.Net.Dave": "3.19.1",
+          "Discord.Net.Rest": "3.19.1"
         }
       },
       "DotNet.ReproducibleBuilds": {
@@ -33,23 +33,23 @@
       },
       "Discord.Net.Core": {
         "type": "Transitive",
-        "resolved": "3.19.0",
-        "contentHash": "UbrVd6XBmQLkB1LmZfGqpxoxHoFHeKa/OPxBxVHPV8RbszzM0XDu01LKPFYIBmcdp7qOIlmbqiXLz40b0WQ8Dw==",
+        "resolved": "3.19.1",
+        "contentHash": "oprcLqSEnJlI0EjjyrKYq4qp3TVgRV5qvlOY+OTjrvCHRDcvH72hCQaXY7fTQKzuRicxB6qKoYuJjcW+bJ21nQ==",
         "dependencies": {
           "Newtonsoft.Json": "13.0.4"
         }
       },
       "Discord.Net.Dave": {
         "type": "Transitive",
-        "resolved": "3.19.0",
-        "contentHash": "yP/vRNnXXVgCB52dYRRUZth3a+FTcBgJfWt6nqru5ey0WaUcKADt+8rNFLbvy8ad45v5Q/xRP36KT84QWPb6aQ=="
+        "resolved": "3.19.1",
+        "contentHash": "za4UlZNYt2DOMy5GKGtTqg8iPK/ZlNqQWbyFIk6308RmRYTZhHhyhQtOrTcVkc/La7HXZDI+HSNqnMcnlTYZaw=="
       },
       "Discord.Net.Rest": {
         "type": "Transitive",
-        "resolved": "3.19.0",
-        "contentHash": "478t89Xv7faDQWmJM3vMd4Z3zXT2+kAEbT4spkWv/JcLqb9ltvwCS5SlczBNhMOY5IiW4bcEn2SnP3oKFu9YOQ==",
+        "resolved": "3.19.1",
+        "contentHash": "47KQw/PKmyxNzRh5yqKQYejznKHriigkmXMQOL5bWp16DEoRtyw0INwXLdLEzLeFjYJTzxBweOSIWZ4To9QIMw==",
         "dependencies": {
-          "Discord.Net.Core": "3.19.0"
+          "Discord.Net.Core": "3.19.1"
         }
       },
       "Newtonsoft.Json": {
