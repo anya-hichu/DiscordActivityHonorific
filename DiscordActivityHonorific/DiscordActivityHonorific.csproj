@@ -9,6 +9,6 @@
 
   <ItemGroup>
     <PackageReference Include="Discord.Net.WebSocket" Version="3.19.1" />
-    <PackageReference Include="Scriban" Version="6.6.0" />
+    <PackageReference Include="Scriban" Version="7.0.0" />
   </ItemGroup>
 </Project>
