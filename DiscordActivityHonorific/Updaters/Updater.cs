@@ -111,7 +111,27 @@ public class Updater : IDisposable
         try
         {
             PluginLog.Debug($"PresenceUpdated for user '{socketUser.Username}':\n{JsonConvert.SerializeObject(newPresence, Formatting.Indented)}");
-            if (Config.Username.IsNullOrWhitespace() || Config.Username == socketUser.Username)
+            
+            var configuredUsernames = Config.Username
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            if (configuredUsernames.Length > 0)
+            {
+                if (!configuredUsernames.Contains(socketUser.Username))
+                    return Task.CompletedTask;
+
+                var higherPriorityOnline = configuredUsernames
+                    .TakeWhile(u => u != socketUser.Username)
+                    .Any(username => DiscordSocketClient.Guilds.Any(
+                        guild => guild.Users.Any(u => u.Username == username && u.Status != UserStatus.Offline)));
+
+                if (higherPriorityOnline)
+                {
+                    PluginLog.Debug($"Ignored PresenceUpdated for '{socketUser.Username}' since a higher-priority configured username is online");
+                    return Task.CompletedTask;
+                }
+            }
+
             {
                 foreach (var activityConfig in Config.ActivityConfigs.Where(c => c.Enabled).OrderByDescending(c => c.Priority))
                 {
@@ -180,11 +200,7 @@ public class Updater : IDisposable
 
                 if (UpdateTitle != null || UpdatedTitleJson != null) ClearTitle();
             }
-            else
-            {
-                PluginLog.Debug($"Ignored PresenceUpdated for '{socketUser.Username}' since it doesn't match explictely configured username: '{Config.Username}'");
-            }
-        } 
+        }
         catch (Exception e)
         {
             PluginLog.Warning(e.ToString());

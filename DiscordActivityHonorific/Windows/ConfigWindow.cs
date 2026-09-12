@@ -94,7 +94,7 @@ public class ConfigWindow : Window
             Config.Username = username;
             SaveConfig();
         }
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Define username to filter out PRESENCE_UPDATE events if there are more than one user in the server");
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Comma-separated usernames to filter PRESENCE_UPDATE events. The first username that is online will be used.");
 
         if (ImGui.Button("New##newActivityConfig"))
         {
