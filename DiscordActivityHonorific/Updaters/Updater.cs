@@ -9,6 +9,7 @@ using DiscordActivityHonorific.Interop;
 using Newtonsoft.Json;
 using Scriban;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -31,6 +32,7 @@ public class Updater : IDisposable
     private string? UpdatedTitleJson { get; set; }
     private UpdaterContext UpdaterContext { get; init; } = new();
     private bool DisplayedMaxLengthError { get; set; } = false;
+    private Dictionary<string, IReadOnlyCollection<IActivity>> LastKnownActivities { get; } = new(StringComparer.OrdinalIgnoreCase);
 
     private double DeltaSinceLastUpdateMs { get; set; } = 0;
 
@@ -111,7 +113,30 @@ public class Updater : IDisposable
         try
         {
             PluginLog.Debug($"PresenceUpdated for user '{socketUser.Username}':\n{JsonConvert.SerializeObject(newPresence, Formatting.Indented)}");
-            if (Config.Username.IsNullOrWhitespace() || Config.Username == socketUser.Username)
+            
+            var configuredUsernames = Config.Usernames
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+            if (configuredUsernames.Length > 0)
+            {
+                if (!configuredUsernames.Contains(socketUser.Username, StringComparer.OrdinalIgnoreCase))
+                    return Task.CompletedTask;
+
+                LastKnownActivities[socketUser.Username] = newPresence.Activities;
+
+                var higherPriorityHasMatchingActivity = configuredUsernames
+                    .TakeWhile(u => !u.Equals(socketUser.Username, StringComparison.OrdinalIgnoreCase))
+                    .Any(u => LastKnownActivities.TryGetValue(u, out var activities) &&
+                              activities.Any(a => Config.ActivityConfigs
+                                  .Any(c => c.Enabled && a.GetType().IsAssignableTo(c.ResolveType()))));
+
+                if (higherPriorityHasMatchingActivity)
+                {
+                    PluginLog.Debug($"Ignored PresenceUpdated for '{socketUser.Username}' since a higher-priority configured username has an active matching activity");
+                    return Task.CompletedTask;
+                }
+            }
+
             {
                 foreach (var activityConfig in Config.ActivityConfigs.Where(c => c.Enabled).OrderByDescending(c => c.Priority))
                 {
@@ -180,11 +205,7 @@ public class Updater : IDisposable
 
                 if (UpdateTitle != null || UpdatedTitleJson != null) ClearTitle();
             }
-            else
-            {
-                PluginLog.Debug($"Ignored PresenceUpdated for '{socketUser.Username}' since it doesn't match explictely configured username: '{Config.Username}'");
-            }
-        } 
+        }
         catch (Exception e)
         {
             PluginLog.Warning(e.ToString());

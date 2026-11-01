@@ -21,6 +21,12 @@ public class ConfigMigrator(IDalamudPluginInterface pluginInterface)
                 };
             });
         }
+        
+        if (config.Version < 2)
+        {
+            config.Usernames = config.Username;
+            config.Username = string.Empty;
+        }
 
         config.Version = currentVersion;
         pluginInterface.SavePluginConfig(config);
