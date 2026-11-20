@@ -7,14 +7,17 @@ namespace DiscordActivityHonorific.Configs;
 [Serializable]
 public class Config : IPluginConfiguration
 {
-    public static readonly int CURRENT_VERSION = 1;
+    public static readonly int CURRENT_VERSION = 2;
 
     public int Version { get; set; } = CURRENT_VERSION;
 
     public bool Enabled { get; set; } = true;
     public string Token { get; set; } = string.Empty;
+
+    [Obsolete("Renamed to Usernames in version 2")]
     public string Username { get; set; } = string.Empty;
- 
+    public string Usernames { get; set; } = string.Empty;
+
     public bool IsHonorificSupporter { get; set; } = false;
 
     public List<ActivityConfig> ActivityConfigs { get; set; } = [];

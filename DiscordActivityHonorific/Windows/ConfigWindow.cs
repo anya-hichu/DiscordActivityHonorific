@@ -88,13 +88,13 @@ public class ConfigWindow : Window
             if (ImGui.Button("Reconnect##reconnect")) Updater.Restart();
         }
 
-        var username = Config.Username;
-        if (ImGui.InputText("Username##username", ref username, ushort.MaxValue))
+        var usernames = Config.Usernames;
+        if (ImGui.InputText("Usernames##usernames", ref usernames, ushort.MaxValue))
         {
-            Config.Username = username;
+            Config.Usernames = usernames;
             SaveConfig();
         }
-        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Define username to filter out PRESENCE_UPDATE events if there are more than one user in the server");
+        if (ImGui.IsItemHovered()) ImGui.SetTooltip("Comma-separated usernames to filter PRESENCE_UPDATE events. The first username that is online will be used.");
 
         if (ImGui.Button("New##newActivityConfig"))
         {
